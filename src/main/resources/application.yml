@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: product
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+  datasource:
+    url: jdbc:mysql://localhost:13307/sams?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: admin1234
+  sql:
+    init:
+      mode: always
+
+aws:
+  kms:
+    key-alias: alias/test
+    region: ap-northeast-2
