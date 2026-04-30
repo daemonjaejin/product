@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
@@ -39,17 +40,18 @@ public class BatchConfig {
     // Step 정의
     @Bean
     public Step encryptionStep(JobRepository jobRepository,
-                               PlatformTransactionManager transactionManager) {
+                               PlatformTransactionManager transactionManager,
+                               ItemReader<Person> reader) { // ← 주입받도록 변경
         return new StepBuilder("encryptionStep", jobRepository)
-                .<Person, Person>chunk(10, transactionManager) // 10건씩 처리
-                .reader(reader())
+                .<Person, Person>chunk(10, transactionManager)
+                .reader(reader)        // ← 직접 호출(reader()) 말고 주입받은 것 사용
                 .processor(processor())
                 .writer(writer())
                 .build();
     }
 
-    // Reader: 미전환 데이터 읽기
     @Bean
+    @StepScope  // ← 이게 핵심!
     public ItemReader<Person> reader() {
         return new ListItemReader<>(personRepository.findNotEncrypted());
     }
